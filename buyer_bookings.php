@@ -97,14 +97,28 @@ if (isset($_GET['cancel'])) {
                                 <!-- Display delivery option -->
                                 <p class="card-text">Delivery Option: <?= $fetch_bookings['delivery_opt']; ?></p>
                                 
-                                <!-- Display delivery status with color coding -->
-                                <p class="card-text" style="color: <?php if ($fetch_bookings['delivery_status'] == 'Pending') {
+                        <!-- Display delivery status with color coding -->
+                        <p class="card-text" style="color: 
+                            <?php 
+                                if ($fetch_bookings['delivery_status'] == 'Pending') {
                                     echo 'orange';
-                                } elseif ($fetch_bookings['delivery_status'] == 'Sent') {
+                                } elseif (
+                                    $fetch_bookings['delivery_status'] == 'Delivered' || 
+                                    $fetch_bookings['delivery_status'] == 'Service Delivered'
+                                ) {
                                     echo 'green';
+                                } elseif (
+                                    $fetch_bookings['delivery_status'] == 'Shipped' || 
+                                    $fetch_bookings['delivery_status'] == 'Out for Delivery' || 
+                                    $fetch_bookings['delivery_status'] == 'Service Scheduled'
+                                ) {
+                                    echo 'black';
                                 } else {
                                     echo 'red';
-                                } ?>">Delivery Status: <?= $fetch_bookings['delivery_status']; ?></p>
+                                } 
+                            ?>">
+                            Delivery Option: <?= $fetch_bookings['delivery_status']; ?>
+                        </p>
 
                                 <?php if ($fetch_bookings['ratings'] != '') { ?>
                                     <p class="card-text">My Ratings: <?= $fetch_bookings['ratings']; ?>/5</p>

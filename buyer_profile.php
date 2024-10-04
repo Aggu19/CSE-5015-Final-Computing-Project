@@ -16,6 +16,15 @@ if(isset($_GET['enable_two_factor'])){
     echo"<script>alert('Two Factor Authentication Enabled Successfully');</script>";
   }
 };
+// Disable 2FA
+if (isset($_GET['disable_two_factor'])) {
+  $two_factor_query = $conn->prepare("UPDATE `service_buyers` SET two_factor_enabled = 0 WHERE buyer_id = ?");
+  $two_factor_query->execute([$buyer_id]);
+
+  if ($two_factor_query) {
+      echo "<script>alert('Two-Factor Authentication Disabled Successfully');</script>";
+  }
+};
 
 if(isset($_POST['updateprofile'])){ // the code below executes when Save Chnages on profile i pressed
 
@@ -50,7 +59,7 @@ if(isset($_POST['updateprofile'])){ // the code below executes when Save Chnages
   }
 };
 
-if(isset($_POST['changepass'])){ // the codwe below executes when change password button is pressed
+if(isset($_POST['changepass'])){ // the code below executes when change password button is pressed
   $currentPass = $_POST['currentPass'];
   $currentPassInput = md5($_POST['currentPassInput']);
   $newPass = md5($_POST['newPass']);
@@ -73,6 +82,7 @@ if(isset($_POST['changepass'])){ // the codwe below executes when change passwor
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile | LankanServices</title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 </head>
 <body style="overflow-x:hidden">
@@ -131,14 +141,54 @@ if(isset($_POST['changepass'])){ // the codwe below executes when change passwor
                     <div class="col-lg-9 col-md-8"><?= $fetch_profile['address']; ?></div>
                   </div>
 
-                  <div class="text-left mt-5">
-                  <?php if($fetch_profile['two_factor_enabled'] == 0){ ?>
-                    <a href="buyer_profile.php?enable_two_factor=<?= $fetch_profile['buyer_id']; ?>" class="btn btn-outline-primary" name="updateprofile">Enable 2 Factor Auth</a>
-                  <?php }else{ ?>
-                  <button class="btn btn-outline-primary" disabled>2 Factor Enabled</button>
+                  <div class="text-left mt-5" style="position: relative;">
+                  <?php if ($fetch_profile['two_factor_enabled'] == 0) { ?>
+                      <!-- Enable 2FA button -->
+                      <a href="buyer_profile.php?enable_two_factor=<?= $fetch_profile['buyer_id']; ?>" 
+                        class="btn btn-outline-primary" id="enableButton" style="position: relative;">Enable 2 Factor Auth</a>
+                  <?php } else { ?>
+                      <!-- 2FA Enabled button -->
+                      <a href="buyer_profile.php" class="btn btn-outline-primary" id="enableButton" 
+                        style="pointer-events: none; position: relative;">2FA Enabled</a>
+                        
+                      <!-- Disable 2FA button -->
+                      <a href="buyer_profile.php?disable_two_factor=<?= $fetch_profile['buyer_id']; ?>" 
+                        class="btn btn-outline-danger" id="disableButton" 
+                        style="position: absolute; left: 0; top: 0; opacity: 0; transition: opacity 0.3s ease;">
+                        Disable 2 Factor Auth
+                      </a>
                   <?php } ?>
-                </div>
-                </div>
+              </div>
+
+              <script>
+                  document.addEventListener("DOMContentLoaded", function() {
+                      // Only run this script if 2FA is enabled
+                      <?php if ($fetch_profile['two_factor_enabled'] == 1) { ?>
+                          const enableButton = document.getElementById('enableButton');
+                          const disableButton = document.getElementById('disableButton');
+
+                          // Show the "Disable 2FA" button when hovering over the "Enable 2FA" button
+                          enableButton.addEventListener('mouseover', function() {
+                              disableButton.style.opacity = '1'; // Show the disable button
+                          });
+
+                          // Hide the "Disable 2FA" button when not hovering
+                          enableButton.addEventListener('mouseout', function() {
+                              disableButton.style.opacity = '0'; // Hide the disable button
+                              setTimeout(() => {
+                                  disableButton.style.display = 'none'; // Hide it completely after fade out
+                              }, 300); // Wait for the fade-out transition to complete
+                          });
+
+                          // Show the disable button when the page loads, if it’s already enabled
+                          disableButton.style.display = 'inline-block'; // Show it
+                          setTimeout(() => {
+                              disableButton.style.opacity = '0'; // Start hidden
+                          }, 10); // Allow DOM update before starting the fade out
+                      <?php } ?>
+                  });
+              </script>
+
 
                 <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
                   <!-- Profile Edit Form -->
