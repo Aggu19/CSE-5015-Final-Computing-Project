@@ -94,24 +94,38 @@ if(isset($_POST['updateDelivery'])){
                 <input type="hidden" name="booking_id" value="<?= $fetch_bookings['booking_id']; ?>">
                 <select name="status" class="form-select" aria-label="Default select example" required>
                   <option value="<?= htmlspecialchars($fetch_bookings['status']); ?>" selected disabled><?= htmlspecialchars($fetch_bookings['status']); ?></option>
-                  <?php if($fetch_bookings['status'] == "pending"){?><option value="approved">Approve</option><?php  }?>
+                  <?php if($fetch_bookings['status'] == "pending"){?>
+                  <option value="approved">Approve</option><?php  }?>
                   <option value="completed">Complete</option>
                   <option value="canceled">Cancel</option>
                 </select>
                 <button type="submit" class="btn btn-outline-success mt-3" name="updateStatus" onclick="return confirm('Do you want to update the status of this booking?')">Update Status</button>
               </form>
 
+              <?php if($fetch_bookings['status'] == "pending" || $fetch_bookings['delivery_status'] == "pending"){ ?>
               <!-- Form to update delivery status -->
               <form action="" method="POST" class="mt-3">
                 <input type="hidden" name="booking_id" value="<?= $fetch_bookings['booking_id']; ?>">
                 <select name="deliveryOption" class="form-select" aria-label="Delivery Option" required>
-                  <option value="<?= htmlspecialchars($fetch_bookings['delivery_status']); ?>" selected disabled><?= htmlspecialchars($fetch_bookings['delivery_status']); ?></option>
-                  <option value="Sent">Sent</option>
+                  <!-- Display the delivery status or fallback to 'Pending' if none exists -->
+                  <option value="<?= isset($fetch_bookings['delivery_status']) ? $fetch_bookings['delivery_status'] : 'Pending'; ?>" selected disabled>
+                      <?= isset($fetch_bookings['delivery_status']) ? $fetch_bookings['delivery_status'] : 'Pending'; ?>
+                  </option>
+                  <?php if($fetch_bookings['delivery_status'] == "pending"){?>
+                  <option value="Shipped">Shipped</option><?php  }?>
+                  <option value="Out for Delivery">Out for Delivery</option>
+                  <option value="Delivered">Delivered</option>
+                  <option value="Delivery Failed">Delivery Failed</option>
+                  <option value="Canceled">Canceled</option>
+                  <option value="Service Scheduled">Service Scheduled</option>
+                  <option value="Service Delivered">Service Delivered</option>
+                  <option value="Service Delayed">Service Delayed</option>
                   <option value="Pending">Pending</option>
                 </select>
                 <button type="submit" class="btn btn-outline-primary mt-3" name="updateDelivery" onclick="return confirm('Do you want to update the delivery status?')">Update Delivery</button>
               </form>
 
+            <?php } ?>
             <?php } ?>
 
           </div>
